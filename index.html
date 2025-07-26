@@ -27,7 +27,21 @@
     .button-container {
       display: flex;
       gap: 1.5rem;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .target-input {
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 1rem;
+    }
+
+    input#targetUrl {
+      padding: 0.8rem;
+      border: 2px solid #e2c76c;
+      border-radius: 8px;
+      width: 300px;
+      font-size: 1rem;
     }
 
     button {
@@ -72,6 +86,11 @@
 <body>
   <h1>🌟 Golden API Control Panel</h1>
 
+  <div class="target-input">
+    <input type="text" id="targetUrl" placeholder="Enter target URL..." />
+    <button onclick="setTarget()">🎯 Set Target</button>
+  </div>
+
   <div class="button-container">
     <button onclick="start()">▶ Start</button>
     <button onclick="stop()">⏹ Stop</button>
@@ -84,13 +103,31 @@
   <script>
     const apiBase = "https://test-mib2.onrender.com";
 
-    async function start() {
+    async function setTarget() {
+      const url = document.getElementById("targetUrl").value;
+      if (!url.startsWith("http")) {
+        updateConsole("❌ Invalid URL format. Use https://...");
+        return;
+      }
+
       try {
-        const res = await fetch(`${apiBase}/start`, {
-          method: "POST"
+        const res = await fetch(`${apiBase}/set-target`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url }),
         });
         const data = await res.json();
-        updateConsole("▶ Started:\n" + JSON.stringify(data, null, 2));
+        updateConsole("✅ Target Set: " + data.target);
+      } catch (err) {
+        updateConsole("❌ Failed to set target: " + err.message);
+      }
+    }
+
+    async function start() {
+      try {
+        const res = await fetch(`${apiBase}/start`, { method: "POST" });
+        const data = await res.text();
+        updateConsole("▶ Started: " + data);
       } catch (err) {
         updateConsole("❌ Failed to start: " + err.message);
       }
@@ -98,11 +135,9 @@
 
     async function stop() {
       try {
-        const res = await fetch(`${apiBase}/stop`, {
-          method: "POST"
-        });
-        const data = await res.json();
-        updateConsole("⏹ Stopped:\n" + JSON.stringify(data, null, 2));
+        const res = await fetch(`${apiBase}/stop`, { method: "POST" });
+        const data = await res.text();
+        updateConsole("⏹ Stopped: " + data);
       } catch (err) {
         updateConsole("❌ Failed to stop: " + err.message);
       }
@@ -111,22 +146,19 @@
     async function updateStatus() {
       try {
         const res = await fetch(`${apiBase}/status`);
-        const data = await res.json();
-        updateConsole(`📡 Status:
-Running: ${data.running}
-Loops: ${data.loop_count}
-Total Sent: ${data.total_sent}`);
+        const data = await res.text();
+        updateConsole("📡 Status: " + data);
       } catch (err) {
-        updateConsole("⚠️ Unable to connect: " + err.message);
+        updateConsole("⚠️ Unable to connect");
       }
     }
 
     function updateConsole(message) {
       const statusDiv = document.getElementById("status");
-      statusDiv.innerText = message + "\n\n" + statusDiv.innerText;
+      statusDiv.innerText = message + "\n" + statusDiv.innerText;
     }
 
-    setInterval(updateStatus, 5000); // Auto-refresh every 5s
+    setInterval(updateStatus, 5000);
   </script>
 </body>
 </html>
