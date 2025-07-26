@@ -3,75 +3,123 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>API Controller</title>
+  <title>Golden API Control Panel</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #0d1117;
-      color: #c9d1d9;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #ffffff;
+      color: #222;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 2rem;
+      min-height: 100vh;
+      background-image: linear-gradient(to bottom right, #fffbe6, #fffdf9);
     }
+
+    h1 {
+      color: #bfa040;
+      font-size: 2.2rem;
+      margin-bottom: 2rem;
+      text-shadow: 1px 1px 1px #e3d087;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
     button {
-      background-color: #238636;
+      background: #bfa040;
       border: none;
       padding: 1rem 2rem;
-      margin: 1rem;
+      font-size: 1.1rem;
       color: white;
-      font-size: 1rem;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      transition: all 0.2s ease;
     }
+
     button:hover {
-      background-color: #2ea043;
+      background: #a3862f;
+      transform: scale(1.05);
     }
+
     #status {
-      margin-top: 2rem;
-      font-size: 1.2rem;
-      background: #161b22;
-      padding: 1rem;
-      border-radius: 5px;
-      width: 300px;
-      text-align: center;
+      background: #f6f2dc;
+      color: #5a4e1c;
+      border: 2px solid #e2c76c;
+      border-radius: 10px;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 500px;
+      font-family: monospace;
+      font-size: 1rem;
+      white-space: pre-wrap;
+      text-align: left;
+      box-shadow: inset 0 0 10px rgba(191,160,64,0.1);
+    }
+
+    footer {
+      margin-top: auto;
+      font-size: 0.85rem;
+      color: #999;
     }
   </style>
 </head>
 <body>
-  <h1>Request Sender Dashboard</h1>
+  <h1>🌟 Golden API Control Panel</h1>
 
-  <button onclick="start()">▶️ Start Sending</button>
-  <button onclick="stop()">⏹️ Stop</button>
+  <div class="button-container">
+    <button onclick="start()">▶ Start</button>
+    <button onclick="stop()">⏹ Stop</button>
+  </div>
 
-  <div id="status">Status: Not started</div>
+  <div id="status">Status: Not started...</div>
+
+  <footer>Powered by your API at <code>test-mib2.onrender.com</code></footer>
 
   <script>
     const apiBase = "https://test-mib2.onrender.com";
 
     async function start() {
-      const res = await fetch(`${apiBase}/start`);
-      const data = await res.text();
-      document.getElementById("status").innerText = `Status: ${data}`;
+      try {
+        const res = await fetch(`${apiBase}/start`);
+        const data = await res.text();
+        updateConsole("Started: " + data);
+      } catch (err) {
+        updateConsole("❌ Failed to start: " + err.message);
+      }
     }
 
     async function stop() {
-      const res = await fetch(`${apiBase}/stop`);
-      const data = await res.text();
-      document.getElementById("status").innerText = `Status: ${data}`;
+      try {
+        const res = await fetch(`${apiBase}/stop`);
+        const data = await res.text();
+        updateConsole("Stopped: " + data);
+      } catch (err) {
+        updateConsole("❌ Failed to stop: " + err.message);
+      }
     }
 
     async function updateStatus() {
       try {
         const res = await fetch(`${apiBase}/status`);
         const data = await res.text();
-        document.getElementById("status").innerText = `Status: ${data}`;
-      } catch {
-        document.getElementById("status").innerText = `Status: Unable to connect`;
+        updateConsole("📡 Status: " + data);
+      } catch (err) {
+        updateConsole("⚠️ Unable to connect");
       }
     }
 
-    setInterval(updateStatus, 5000); // Refresh status every 5 seconds
+    function updateConsole(message) {
+      const statusDiv = document.getElementById("status");
+      statusDiv.innerText = message + "\n" + statusDiv.innerText;
+    }
+
+    setInterval(updateStatus, 5000); // Auto-refresh every 5s
   </script>
 </body>
 </html>
