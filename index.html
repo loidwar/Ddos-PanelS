@@ -86,9 +86,11 @@
 
     async function start() {
       try {
-        const res = await fetch(`${apiBase}/start`);
-        const data = await res.text();
-        updateConsole("Started: " + data);
+        const res = await fetch(`${apiBase}/start`, {
+          method: "POST"
+        });
+        const data = await res.json();
+        updateConsole("▶ Started:\n" + JSON.stringify(data, null, 2));
       } catch (err) {
         updateConsole("❌ Failed to start: " + err.message);
       }
@@ -96,9 +98,11 @@
 
     async function stop() {
       try {
-        const res = await fetch(`${apiBase}/stop`);
-        const data = await res.text();
-        updateConsole("Stopped: " + data);
+        const res = await fetch(`${apiBase}/stop`, {
+          method: "POST"
+        });
+        const data = await res.json();
+        updateConsole("⏹ Stopped:\n" + JSON.stringify(data, null, 2));
       } catch (err) {
         updateConsole("❌ Failed to stop: " + err.message);
       }
@@ -107,16 +111,19 @@
     async function updateStatus() {
       try {
         const res = await fetch(`${apiBase}/status`);
-        const data = await res.text();
-        updateConsole("📡 Status: " + data);
+        const data = await res.json();
+        updateConsole(`📡 Status:
+Running: ${data.running}
+Loops: ${data.loop_count}
+Total Sent: ${data.total_sent}`);
       } catch (err) {
-        updateConsole("⚠️ Unable to connect");
+        updateConsole("⚠️ Unable to connect: " + err.message);
       }
     }
 
     function updateConsole(message) {
       const statusDiv = document.getElementById("status");
-      statusDiv.innerText = message + "\n" + statusDiv.innerText;
+      statusDiv.innerText = message + "\n\n" + statusDiv.innerText;
     }
 
     setInterval(updateStatus, 5000); // Auto-refresh every 5s
