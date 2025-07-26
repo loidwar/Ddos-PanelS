@@ -1,37 +1,77 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Loop Controller</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>API Controller</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0d1117;
+      color: #c9d1d9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+    button {
+      background-color: #238636;
+      border: none;
+      padding: 1rem 2rem;
+      margin: 1rem;
+      color: white;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2ea043;
+    }
+    #status {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      background: #161b22;
+      padding: 1rem;
+      border-radius: 5px;
+      width: 300px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-  <h1>Flood Controller</h1>
-  <p>Status: <span id="status">Loading...</span></p>
-  <p>Loops: <span id="loops">0</span></p>
-  <p>Total Sent: <span id="sent">0</span></p>
-  <button onclick="start()">Start</button>
-  <button onclick="stop()">Stop</button>
+  <h1>Request Sender Dashboard</h1>
+
+  <button onclick="start()">▶️ Start Sending</button>
+  <button onclick="stop()">⏹️ Stop</button>
+
+  <div id="status">Status: Not started</div>
 
   <script>
-    async function fetchStatus() {
-      const res = await fetch('/status');
-      const data = await res.json();
-      document.getElementById("status").textContent = data.running ? "Running" : "Stopped";
-      document.getElementById("loops").textContent = data.loop_count;
-      document.getElementById("sent").textContent = data.total_sent;
-    }
+    const apiBase = "https://test-mib2.onrender.com";
 
     async function start() {
-      await fetch('/start', { method: 'POST' });
-      fetchStatus();
+      const res = await fetch(`${apiBase}/start`);
+      const data = await res.text();
+      document.getElementById("status").innerText = `Status: ${data}`;
     }
 
     async function stop() {
-      await fetch('/stop', { method: 'POST' });
-      fetchStatus();
+      const res = await fetch(`${apiBase}/stop`);
+      const data = await res.text();
+      document.getElementById("status").innerText = `Status: ${data}`;
     }
 
-    setInterval(fetchStatus, 1000);
-    fetchStatus();
+    async function updateStatus() {
+      try {
+        const res = await fetch(`${apiBase}/status`);
+        const data = await res.text();
+        document.getElementById("status").innerText = `Status: ${data}`;
+      } catch {
+        document.getElementById("status").innerText = `Status: Unable to connect`;
+      }
+    }
+
+    setInterval(updateStatus, 5000); // Refresh status every 5 seconds
   </script>
 </body>
 </html>
