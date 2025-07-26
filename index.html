@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Loop Controller</title>
+</head>
+<body>
+  <h1>Flood Controller</h1>
+  <p>Status: <span id="status">Loading...</span></p>
+  <p>Loops: <span id="loops">0</span></p>
+  <p>Total Sent: <span id="sent">0</span></p>
+  <button onclick="start()">Start</button>
+  <button onclick="stop()">Stop</button>
+
+  <script>
+    async function fetchStatus() {
+      const res = await fetch('/status');
+      const data = await res.json();
+      document.getElementById("status").textContent = data.running ? "Running" : "Stopped";
+      document.getElementById("loops").textContent = data.loop_count;
+      document.getElementById("sent").textContent = data.total_sent;
+    }
+
+    async function start() {
+      await fetch('/start', { method: 'POST' });
+      fetchStatus();
+    }
+
+    async function stop() {
+      await fetch('/stop', { method: 'POST' });
+      fetchStatus();
+    }
+
+    setInterval(fetchStatus, 1000);
+    fetchStatus();
+  </script>
+</body>
+</html>
